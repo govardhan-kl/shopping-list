@@ -2,6 +2,7 @@ const addBtn = document.querySelector(".btn");
 const textInput = document.querySelector('#item-input');
 const itemList = document.getElementById('item-list');
 const clearBtn = document.getElementById('clear');
+const filterInput = document.getElementById('filter');
 
 /**
  * 
@@ -41,12 +42,17 @@ function addItem(e){
 
     //clearing input field after adding item
     textInput.value='';
+
+    checkUI();
 }
 
 
 function removeItem(e) {
     if (e.target.parentElement.classList.contains('remove-item')) {
-      e.target.parentElement.parentElement.remove();
+        if(confirm(`Are you sure want to delete ${e.target.parentElement.parentElement.innerText}`)){
+            e.target.parentElement.parentElement.remove();
+            checkUI();
+        }
     }
 }
 
@@ -60,6 +66,21 @@ function clearItems(){
         // itemList.firstChild.remove()
         itemList.removeChild(itemList.firstChild)
     }
+    checkUI();
+}
+
+
+//when items are cleared no need of filter and clear button.
+function checkUI(){
+    // if we remove it like below, again when we add items they wont come up
+    // filterInput.remove() or filterInput.parentElement.removeChild(filterInput) or clearBtn.remove()
+    if(itemList.firstElementChild){
+        filterInput.style.display='block';
+        clearBtn.style.display='block'
+    }else{
+        filterInput.style.display='none';
+        clearBtn.style.display='none'
+    } 
 }
 
 
@@ -69,4 +90,5 @@ addBtn.addEventListener('click', addItem)
 itemList.addEventListener('click',removeItem);
 //This is for clearing all items
 clearBtn.addEventListener('click',clearItems);
-
+//to remove the filter and clearBtn when no items are present
+checkUI()
