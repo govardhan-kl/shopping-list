@@ -70,6 +70,22 @@ function clearItems(){
 }
 
 
+function addFilter(e){
+    const filterValue = e.target.value.toLowerCase();
+    const items = document.querySelectorAll('li');
+    items.forEach((item)=>{
+        let itemText = item.innerText.toLowerCase();
+        let k = itemText.indexOf(filterValue);//can also use icludes()
+        if(k !== -1){
+            item.style.display = 'flex';
+        }else{
+            item.style.display = 'none';
+        }
+    })
+
+}
+
+
 //when items are cleared no need of filter and clear button.
 function checkUI(){
     // if we remove it like below, again when we add items they wont come up
@@ -92,3 +108,5 @@ itemList.addEventListener('click',removeItem);
 clearBtn.addEventListener('click',clearItems);
 //to remove the filter and clearBtn when no items are present
 checkUI()
+//Adding filter
+filterInput.addEventListener('input',addFilter);
