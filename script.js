@@ -3,31 +3,37 @@ const textInput = document.querySelector('#item-input');
 const itemList = document.getElementById('item-list');
 const clearBtn = document.getElementById('clear');
 const filterInput = document.getElementById('filter');
+let editItemName, editItemElement;
 
 /**
  * 
  * @param {item name from event} e 
  * @returns 
  */
-function addItem(e){
+function addItemLocalStorage(e){
     e.preventDefault();
     
     if(textInput.value === "" || textInput.value.trim() === ""){
         alert('Enter the Item Name');
         return;
     }
-    //method 1
-    // const ul = document.querySelector('#item-list');
-    // ul.innerHTML += `
-    // <li>
-    //     ${textInput.value}
-    //     <button class="remove-item btn-link text-red">
-    //         <i class="fa-solid fa-xmark"></i>
-    //     </button>
-    // </li>
-    // `
     
-    //method-2
+    //chaning if the btn is update to add and deleting the old item to update it to latest
+    const updateBtn = document.querySelector('.update');
+    if(updateBtn){
+        let localItems = JSON.parse(localStorage.getItem('items'));
+        let index = localItems.indexOf(editItemName);
+        console.log(index);
+        localItems.splice(index,1);
+        localStorage.setItem('items',JSON.stringify(localItems));
+        editItemElement.remove()
+
+        updateBtn.className = 'btn'
+        updateBtn.innerHTML=`
+            <i class="fa-solid fa-plus"></i> Add Item
+        `
+    }
+
     const ul = document.querySelector('#item-list');
     const li = document.createElement('li');
     const btn = document.createElement('button');
@@ -40,6 +46,10 @@ function addItem(e){
     btn.appendChild(i);
     ul.appendChild(li);
 
+    let localItems = JSON.parse(localStorage.getItem('items'));
+    localItems.push(textInput.value)
+    localStorage.setItem('items',JSON.stringify(localItems));
+
     //clearing input field after adding item
     textInput.value='';
 
@@ -47,12 +57,66 @@ function addItem(e){
 }
 
 
-function removeItem(e) {
-    if (e.target.parentElement.classList.contains('remove-item')) {
-        if(confirm(`Are you sure want to delete ${e.target.parentElement.parentElement.innerText}`)){
-            e.target.parentElement.parentElement.remove();
-            checkUI();
-        }
+function displayLocalElements(){
+    let localItems = JSON.parse(localStorage.getItem('items'));
+    localItems.forEach((eachLocalItem)=>{
+        const ul = document.querySelector('#item-list');
+        ul.innerHTML += `
+        <li>
+            ${eachLocalItem}
+            <button class="remove-item btn-link text-red">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </li>
+        `
+    })
+}
+
+
+function clikOnItems(e){
+    //to remove items
+    if(e.target.parentElement.classList.contains('remove-item')){
+        removeItemFromLocalStorage(e.target.parentElement.parentElement,e.target.parentElement.parentElement.innerText)
+    }
+
+    //to edit the item
+    if(e.target.tagName === 'LI'){
+        editItem(e.target)
+    }
+}
+
+
+function editItem(item){
+    const li = document.querySelectorAll('#item-list li')
+    li.forEach((i)=>{
+        i.style.opacity='1'
+    })
+    console.log(item)
+    const updateBtn = document.querySelector('.form-control button')
+    updateBtn.className='btn update';
+    updateBtn.innerHTML = `
+            <i class="fa-solid fa-pen"></i> Update Item
+    `
+    textInput.value = item.innerText.trim();
+    editItemName = item.innerText.trim();
+    editItemElement = item;
+    item.style.opacity='0.6';
+}
+
+
+function removeItemFromLocalStorage(item,text) {
+    console.log(item.innerText,text)
+
+    if(confirm(`Are you sure want to delete ${item.innerText}`)){
+        item.remove();
+        
+        let localItems = JSON.parse(localStorage.getItem('items'));
+        let index = localItems.indexOf(item.innerText.trim());
+        console.log(item,item.textContent.trim(),index,text,localItems);
+        localItems.splice(index,1);
+        localStorage.setItem('items',JSON.stringify(localItems));
+
+        checkUI();
     }
 }
 
@@ -66,6 +130,7 @@ function clearItems(){
         // itemList.firstChild.remove()
         itemList.removeChild(itemList.firstChild)
     }
+    localStorage.removeItem('items');
     checkUI();
 }
 
@@ -82,7 +147,6 @@ function addFilter(e){
             item.style.display = 'none';
         }
     })
-
 }
 
 
@@ -100,10 +164,15 @@ function checkUI(){
 }
 
 
-//This is for adding items
-addBtn.addEventListener('click', addItem)
+//This is for adding items by localstorage
+if(localStorage.getItem('items')){
+    displayLocalElements()
+}else{
+    localStorage.setItem('items',JSON.stringify([]));
+}
+addBtn.addEventListener('click', addItemLocalStorage)
 //This is for removing items inside parent itemList
-itemList.addEventListener('click',removeItem);
+itemList.addEventListener('click',clikOnItems);
 //This is for clearing all items
 clearBtn.addEventListener('click',clearItems);
 //to remove the filter and clearBtn when no items are present
