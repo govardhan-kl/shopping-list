@@ -36,10 +36,14 @@ function addItemLocalStorage(e){
 
     //check if the item adding exits or not
     let getLocalItems = JSON.parse(localStorage.getItem('items'));
-    getLocalItems = getLocalItems.map((i)=>i.toLowerCase())
-    if(getLocalItems.includes(textInput.value.toLowerCase())){
-        alert(`${textInput.value} Item already exists`);
-        return;
+    if(getLocalItems){
+        getLocalItems = getLocalItems.map((i)=>i.toLowerCase())
+        if(getLocalItems.includes(textInput.value.toLowerCase())){
+            alert(`${textInput.value} Item already exists`);
+            return;
+        }
+    }else{
+        localStorage.setItem('items',JSON.stringify([]));
     }
 
     const ul = document.querySelector('#item-list');
